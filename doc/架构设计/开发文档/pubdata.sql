@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50617
 File Encoding         : 65001
 
-Date: 2017-10-19 10:43:55
+Date: 2017-10-19 14:03:00
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -48,6 +48,21 @@ CREATE TABLE `pub_auth_rule` (
   `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '规则状态：“0”为禁用，“1”为启用(默认)',
   `condition` varchar(50) NOT NULL COMMENT '规则的条件',
   PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for pub_charg
+-- ----------------------------
+DROP TABLE IF EXISTS `pub_charg`;
+CREATE TABLE `pub_charg` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `vendors_id` int(11) unsigned NOT NULL COMMENT '关联的供销商ID号',
+  `lease_way` tinyint(1) unsigned NOT NULL COMMENT '计费方式',
+  `price` decimal(15,2) unsigned NOT NULL COMMENT '价格',
+  `begin_time` datetime NOT NULL COMMENT '开始时间',
+  `end_time` datetime NOT NULL COMMENT '结束时间',
+  PRIMARY KEY (`id`),
+  KEY `vendors_id` (`vendors_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
@@ -99,14 +114,14 @@ DROP TABLE IF EXISTS `pub_hire`;
 CREATE TABLE `pub_hire` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
   `hire_id` int(11) unsigned NOT NULL COMMENT '租赁编号',
+  `vendors_id` int(11) unsigned NOT NULL COMMENT '关联的供销商ID号',
   `device_id` int(11) unsigned NOT NULL COMMENT '关联的设备ID号',
   `user_id` int(11) unsigned NOT NULL COMMENT '关联的用户ID号',
-  `lease_way` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '租赁方式：“1”为计时，“2”为计量',
-  `rental_fee` decimal(15,2) unsigned NOT NULL COMMENT '租赁费用',
+  `charg_id` int(11) unsigned NOT NULL DEFAULT '1' COMMENT '关联的计费ID号',
   `begin_time` datetime NOT NULL COMMENT '租赁开始时间',
   `end_time` datetime NOT NULL COMMENT '租赁结束时间',
   PRIMARY KEY (`id`),
-  KEY `hire_id` (`hire_id`,`device_id`,`user_id`)
+  KEY `hire_id` (`hire_id`,`device_id`,`user_id`,`vendors_id`,`charg_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
@@ -127,7 +142,7 @@ CREATE TABLE `pub_leaevl` (
 DROP TABLE IF EXISTS `pub_loglist`;
 CREATE TABLE `pub_loglist` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
-  `user_id` int(11) unsigned NOT NULL COMMENT '关联的用户ID号',
+  `user_id` int(11) unsigned NOT NULL COMMENT '关联的登陆ID号',
   `content` varchar(255) NOT NULL COMMENT '操作内容',
   `time` datetime NOT NULL COMMENT '操作时间',
   `ip` varchar(15) NOT NULL COMMENT '操作IP',
